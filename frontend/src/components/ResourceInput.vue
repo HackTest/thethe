@@ -16,7 +16,6 @@
               single-line
               outline
               ref="resource_text_field"
-              v-on:keydown="hola"
             ></v-text-field>
             <v-divider></v-divider>
             <v-flex>
@@ -73,9 +72,6 @@ export default {
       this.$refs.resource_form.reset();
       this.dialog = false;
       this.prevent_send = false;
-    },
-    hola() {
-      console.log("holaaa");
     }
   }
 };

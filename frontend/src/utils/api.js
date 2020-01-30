@@ -2,7 +2,7 @@ const axios = require("axios").create();
 
 if (process.env.NODE_ENV === "development") {
   console.log("Starting development mode...");
-    axios.defaults.baseURL = "http://localhost:8000"
+  axios.defaults.baseURL = "http://localhost:8000";
 } else {
 }
 

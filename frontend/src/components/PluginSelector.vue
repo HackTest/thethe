@@ -37,12 +37,7 @@
               </v-icon>
             </v-btn>
           </v-list-tile-avatar>
-          <v-layout
-            @click="
-              launch(plugin);
-              sheet = false;
-            "
-          >
+          <v-layout>
             <v-list-tile-avatar class="pt-2">
               <v-icon
                 v-if="plugin.is_active"
@@ -53,7 +48,16 @@
                 info
               </v-icon>
             </v-list-tile-avatar>
-            <v-btn class="text-lowercase" block large flat>
+            <v-btn
+              class="text-lowercase"
+              block
+              large
+              flat
+              @click="
+                launch(plugin);
+                sheet = false;
+              "
+            >
               <v-list-tile-content>
                 <v-list-tile-title class="subheading">{{
                   plugin.name
@@ -115,6 +119,22 @@ export default {
         })
         .then(resp => this.update_pluginglist_dates());
     },
+    signal_loading: function(plugin_name) {
+      var resourceList = this.resource.resource_type + "list";
+      let resource = this.$store.state.resourcelist[resourceList].find(
+        el => el._id === this.resource._id
+      );
+      let plugin = resource.plugins.find(el => el.name === plugin_name);
+      if (plugin) {
+        plugin.results = "loading";
+      } else {
+        var update = {
+          name: plugin_name,
+          results: "loading"
+        };
+        resource.plugins.push(update);
+      }
+    },
     launch: function(entry) {
       let params = {
         url: "/api/launch_plugin",
@@ -123,10 +143,9 @@ export default {
         plugin_name: entry.name
       };
 
-      // TODO: Signal plugin launching
+      this.signal_loading(entry.name);
       api_call(params);
     },
-
     formatted_time: function(ts) {
       if (!ts) {
         return "Not launched yet";
@@ -134,12 +153,10 @@ export default {
       let t = new Date(ts * 1000);
       return `${t.toLocaleDateString()} at ${t.toLocaleTimeString()}`;
     },
-
     avatar_color: function(date) {
       if (date !== null) return "blue";
       return "green";
     },
-
     update_pluginglist_dates: function() {
       for (let plugin of this.plugin_list) {
         let match = this.resource.plugins.find(
