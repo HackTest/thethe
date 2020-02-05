@@ -21,7 +21,6 @@ const actions = {
       commit(payload.mutation, { ...payload });
     });
   },
-
   update: async function({ commit }) {
     let url = "/api/ping";
 
@@ -35,13 +34,14 @@ const actions = {
       })
       .catch(err => console.log(err));
   },
-
   reset_resource_lists: function({ commit }) {
     commit("reset_resource_lists");
   },
-
   update_resource: async function({ commit }, payload) {
     commit("add_update", payload);
+  },
+  loading({ commit }, payload) {
+    commit("loading", payload);
   }
 };
 
@@ -49,7 +49,6 @@ const mutations = {
   reset_resource_lists: function() {
     Object.keys(state).forEach(el => (state[el] = []));
   },
-
   set_resource_list: function(commit, payload) {
     let resources = [];
     payload.server_response.forEach(resource => {
@@ -57,7 +56,6 @@ const mutations = {
     });
     state[payload.mutation_args.list_name] = resources;
   },
-
   remove_resource: function(commit, payload) {
     let resource_list = payload.mutation_args.list_name;
 
@@ -65,7 +63,6 @@ const mutations = {
       el => el._id !== payload.to_server.resource_id
     );
   },
-
   add_resource: function(commit, payload) {
     payload.server_response.forEach(resource => {
       let list_name = resource.type + "list";
@@ -79,7 +76,6 @@ const mutations = {
 
     return payload.server_response;
   },
-
   add_update: async function(commit, update) {
     let url = "/api/get_resource";
     let resource_id = update.resource_id;
@@ -107,12 +103,29 @@ const mutations = {
       resource.plugins = resp_as_json.plugins;
       resource.tags = resp_as_json.tags;
     });
+  },
+  loading: function(state, payload) {
+    let resourceList = payload.resourceType + "list";
+    let resource = state[resourceList].find(el => el._id === payload._id);
+    let plugin = resource.plugins.find(el => el.name === payload.plugin);
+    if (plugin) {
+      plugin.results = "loading";
+    } else {
+      resource.plugins.push({
+        name: payload.plugin,
+        results: "loading"
+      });
+    }
   }
 };
 
 const getters = {
   // reusable data accessors
-  get_resources: state => resource_list => state[resource_list]
+  get_resources: state => resource_list => state[resource_list],
+  loadingResources: (state, getters) => {
+    // TODO
+    return false;
+  }
 };
 
 export default {

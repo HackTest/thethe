@@ -119,21 +119,12 @@ export default {
         })
         .then(resp => this.update_pluginglist_dates());
     },
-    signal_loading: function(plugin_name) {
-      var resourceList = this.resource.resource_type + "list";
-      let resource = this.$store.state.resourcelist[resourceList].find(
-        el => el._id === this.resource._id
-      );
-      let plugin = resource.plugins.find(el => el.name === plugin_name);
-      if (plugin) {
-        plugin.results = "loading";
-      } else {
-        var update = {
-          name: plugin_name,
-          results: "loading"
-        };
-        resource.plugins.push(update);
-      }
+    loading: function(plugin) {
+      this.$store.dispatch("loading", {
+        _id: this.resource._id,
+        resourceType: this.resource.resource_type,
+        plugin: plugin
+      });
     },
     launch: function(entry) {
       let params = {
@@ -143,7 +134,7 @@ export default {
         plugin_name: entry.name
       };
 
-      this.signal_loading(entry.name);
+      this.loading(entry.name);
       api_call(params);
     },
     formatted_time: function(ts) {
